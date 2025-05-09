@@ -1,28 +1,21 @@
 -- Question 1 Achieving 1NF (First Normal Form)
 
-CREATE TABLE Orders(
-OrderID INT PRIMARY KEY,
-CustomerName VARCHAR(100)
+DROP TABLE IF EXISTS NormalizedProductDetail;
+
+CREATE TABLE NormalizedProductDetail(
+OrderID INT,
+CustomerName VARCHAR(100),
+Product VARCHAR(100),
+PRIMARY KEY (OrderID, Product)
 );
 
-INSERT INTO Orders (OrderID, CustomerName)
-VALUES (101, 'John Doe'),
-       (102, 'Jane Smith'),
-       (103, 'Emily Clark');
-
-
-CREATE TABLE OrderedProduct(
-OrderID INT PRIMARY KEY,
-ProductName VARCHAR(100)
-);
-
-INSERT INTO OrderedProduct (OrderID, ProductName)
-VALUES (101, 'Laptop'),
-       (101, 'Mouse'),
-       (102, 'Tablet'),
-       (102, 'Keyboard'),
-       (102, 'Mouse'),
-       (103, 'Phone');
+INSERT INTO NormalizedProductDetail (OrderID, CustomerName, Product)
+VALUES (101, 'John Doe','Laptop'),
+       (101, 'John Doe','Mouse'),
+       (102, 'Jane Smith','Tablet'),
+       (102, 'Jane Smith','Keyboard'),
+       (103, 'Emily Clark','Mouse'),
+       (103, 'Emily Clark','Phone');
 
 
 -- Question 2 Achieving 2NF (Second Normal Form)
@@ -44,7 +37,7 @@ VALUES
     (103, 'Emily Clark', 'Phone', 1);
 
 
--- create the first stable with only customer name/ no partial dependency
+-- create the first table with only customer name/ no partial dependency
     CREATE TABLE Orders (
     OrderID INT PRIMARY KEY,
     CustomerName VARCHAR(100)
@@ -57,14 +50,15 @@ FROM OrderDetails;
 
 -- create table that fully depends on composite key
 CREATE TABLE OrderItems (
-    OrderID INT,
+    ProductID INT AUTO_INCREMENT,
     Product VARCHAR(100),
     Quantity INT,
-    PRIMARY KEY (OrderID, Product),
+    OrderID INT,
+    PRIMARY KEY (ProductID),
     FOREIGN KEY (OrderID) REFERENCES Orders(OrderID)
 );
 
-INSERT INTO OrderItems (OrderID, Product, Quantity)
-SELECT OrderID, Product, Quantity
+INSERT INTO OrderItems (Product, Quantity, OrderID)
+SELECT Product, Quantity, OrderID
 FROM OrderDetails;
 
